@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <time.h>
 
-unsigned int ns[] = { 10, /* TODO: fill values which will be used as lists' sizes */ };
+unsigned int ns[] = { 100,1000,2000 /* TODO: fill values which will be used as lists' sizes */ };
 
 // each tree node contains an integer key and pointers to left and right children nodes
 struct node {
@@ -17,30 +17,72 @@ struct node {
 // tree's beginning is called the root
 struct node *root = NULL;
 
-struct node **tree_search(struct node **candidate, int value) {
-    // TODO: implement
-    return NULL;
+struct node** tree_search(struct node** candidate, int value)
+{
+    //przypadki podstawowe
+    if (((*candidate)==NULL) || ((*candidate)->key == value)) {
+        return candidate;
+    }
+    else if ((*candidate)->key < value) {
+        return tree_search(&((*candidate)->right), value);
+    }
+    return tree_search(&((*candidate)->left), value);
+}
+
+struct node *newNode(int item)
+{
+    struct node *temp =  (struct node *)malloc(sizeof(struct node));
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
 }
 
 struct node* tree_insert(int value) {
-    // TODO: implement
-    return NULL;
+    if (root == NULL) {
+        root = newNode(value);
+        return root;
+    }
+    struct node **newnode; //tworzymy wskaznik do miejsca adresu przyszłej struktury
+    newnode = tree_search(&root, value); //zwracamy adres do wskaznika
+    struct node *new = (struct node *) malloc(sizeof(struct node)); //pomocnicza struktura przechowa wartosci
+    new->key = value;
+    new->left = NULL;
+    new->right = NULL;
+    *newnode = new; // wartosci tymczasowej struktury zamieszczamy pod adresem zwróconym z search
 }
 
-
-
 struct node **tree_maximum(struct node **candidate) {
-    // TODO: implement
-    return NULL;
+    if((*candidate)->right != NULL)
+    {
+        return tree_maximum(&(*candidate)->right);
+    }
+    return candidate;
 }
 
 void tree_delete(int value) {
-    // TODO: implement
+    struct node** nodeptr = tree_search(&root, value);
+    if(((*nodeptr)->left == NULL) && ((*nodeptr)->right == NULL)) {
+        *nodeptr = NULL;
+    }
+    else if(((*nodeptr)->left != NULL) && ((*nodeptr)->right == NULL)){
+        *nodeptr = (*nodeptr)->left;
+    }
+    else if(((*nodeptr)->left == NULL) && ((*nodeptr)->right != NULL)){
+        *nodeptr = (*nodeptr)->right;
+    }
+    else {
+        struct node ** maxnodeptr = tree_maximum(&(*nodeptr)->left);
+        (*nodeptr)->key = (*maxnodeptr)->key;
+        *maxnodeptr = (*maxnodeptr)->left;
+    }
 }
 
 unsigned int tree_size(struct node *element) {
-    // TODO: implement
-    return 0;
+    int count = 0;
+    while(element != NULL) {
+        return(tree_size(element->left) + tree_size(element->right) + count+1);
+    }
+    return count;
 }
 
 /*
@@ -100,9 +142,9 @@ bool is_bst(struct node *element) {
     }
     // both subnodes present? check both recursively
     return (element->key > element->left->key)
-        && (element->key < element->right->key)
-        && is_bst(element->left)
-        && is_bst(element->right);
+           && (element->key < element->right->key)
+           && is_bst(element->left)
+           && is_bst(element->right);
 }
 
 void insert_increasing(int *t, int n) {
@@ -117,13 +159,44 @@ void insert_random(int *t, int n) {
         tree_insert(t[i]);
     }
 }
+//def tree_balanced_create(t)
+//    sort(t)
+//    tree_insert_biject(t, 0, n-1)
+//
+//def tree_insert_biject(t, p, r)
+//    if p = r
+//        tree_insert(t[p])
+//    if r - p = 1
+//        tree_insert(t[p])
+//        tree_insert(t[r])
+//    else
+//        q ← p + (r - p)/2
+//        tree_insert(t[q])
+//        tree_insert_biject(t, p, q-1)
+//        tree_insert_biject(t, q+1, r)
 
-void insert_binary(int *t, int n) {
-    // TODO: implement
+void tree_insert_biject(int *t, int p, int r){
+    if(p==r) {
+        tree_insert(t[p]);
+    }
+    else if (r-p == 1) {
+        tree_insert(t[p]);
+        tree_insert(t[r]);
+    }
+    else {
+        int q = p + (r - p)/2;
+        tree_insert(t[q]);
+        tree_insert_biject(t, p, q-1);
+        tree_insert_biject(t, q+1, r);
+    }
 }
 
-char *insert_names[] = { "Increasing", "Random", "Binary" };
-void (*insert_functions[])(int*, int) = { insert_increasing, insert_random, insert_binary };
+void insert_binary(int *t, int n) {
+    tree_insert_biject(t, 0, n-1);
+}
+
+char *insert_names[] = { "Increasing", "Random" , "Binary"}; //, "Binary"
+void (*insert_functions[])(int*, int) = { insert_increasing, insert_random, insert_binary}; //, insert_binary
 
 int main(int argc, char **argv) {
     for (unsigned int i = 0; i < sizeof(insert_functions) / sizeof(*insert_functions); i++) {
@@ -172,10 +245,10 @@ int main(int argc, char **argv) {
             free(t);
 
             printf("%d\t%s\t%f\t%f\n",
-                    n,
-                    insert_names[i],
-                    (double)insertion_time / CLOCKS_PER_SEC,
-                    (double)search_time / CLOCKS_PER_SEC);
+                   n,
+                   insert_names[i],
+                   (double)insertion_time / CLOCKS_PER_SEC,
+                   (double)search_time / CLOCKS_PER_SEC);
         }
     }
     return 0;
