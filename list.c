@@ -4,35 +4,86 @@
 #include <stdlib.h>
 #include <time.h>
 
-unsigned int ns[] = { 10, /* TODO: fill values which will be used as lists' sizes */ };
+unsigned int ns[] = { 10, 20 /* TODO: fill values which will be used as lists' sizes */ };
 
 // each list node contains an integer key value and pointer to next list node
-struct node {
+typedef struct node {
     int key;
     struct node *next;
-};
+} list_node;
 
 // list's beginning is called the head of list
 struct node *head = NULL;
 
 
 struct node* list_insert(int value) {
-    // TODO: implement
-    return NULL;
+    if(head == NULL) { //jesli head jest pusty, to tworzymy pierwszy element
+        head = (list_node*) malloc(sizeof(list_node));
+        head->key = value;
+        head->next = NULL;
+    }
+    else { // w innym wypadku dodajemy element do jego poprzednika
+        list_node *iter = head;
+        while(iter->next != NULL) {
+            iter = iter->next;
+        }
+        iter->next = (list_node *) malloc(sizeof(list_node));
+        iter->next->key  = value;
+        iter->next->next = NULL;
+    }
 }
 
+//def list_search(value)
+//    iter ← head
+//    while iter ≠ null and iter.key ≠ value
+//        iter ← iter.next
+//    return iter
+
 struct node* list_search(int value) {
-    // TODO: implement
-    return NULL;
+    list_node * iter = head;
+    while(iter->next != NULL && iter->key != value){
+        iter = iter->next;
+    }
+    return iter;
 }
 
 void list_delete(int value) {
-    // TODO: implement
+    list_node * current = head;
+    list_node * temporary = head;
+    list_node * previous;
+    //sprawdzamy czy poszukiwany element jest pierwszy,
+    //jesli tak zmieniamy wskaznik head na nastepny element
+    if(temporary != NULL) {
+        if(temporary->key == value){
+            head = temporary->next;
+            free(temporary);
+            return;
+        }
+    }
+
+    while(temporary != NULL && temporary->key != value) {
+        previous = temporary; //sledzimy poprzedni element listy
+        temporary = temporary->next;
+    }
+    previous->next = temporary->next;
+    free(temporary);
 }
+//def list_size()
+//    size ← 0
+//    iter ← head
+//    while iter ≠ null
+//        size ← size + 1
+//        iter ← iter.next
+//    return size
 
 unsigned int list_size() {
-    // TODO: implement
-    return 0;
+    int i = 0;
+    list_node * iter = head;
+    while(iter != NULL) {
+        iter = iter->next;
+        i++;
+    }
+    return i;
 }
 
 /*
@@ -117,8 +168,8 @@ int main() {
             free(t);
 
             printf("%d\t%s\t%f\t%f\n", n, enable_shuffle ? "true" : "false",
-                    (double)insertion_time / CLOCKS_PER_SEC,
-                    (double)search_time / CLOCKS_PER_SEC);
+                   (double)insertion_time / CLOCKS_PER_SEC,
+                   (double)search_time / CLOCKS_PER_SEC);
         }
     }
     return 0;
