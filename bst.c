@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <time.h>
 
-unsigned int ns[] = { 100,1000,2000 /* TODO: fill values which will be used as lists' sizes */ };
+unsigned int ns[] = { 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000 ,18000, 20000};
 
 // each tree node contains an integer key and pointers to left and right children nodes
 struct node {
