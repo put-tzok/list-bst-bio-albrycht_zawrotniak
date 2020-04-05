@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-unsigned int ns[] = { 10, 20 /* TODO: fill values which will be used as lists' sizes */ };
+unsigned int ns[] = { 500, 1500, 2500, 3500, 4500, 5500, 6500, 7500, 8500, 9500, 10500, 11500};
 
 // each list node contains an integer key value and pointer to next list node
 typedef struct node {
